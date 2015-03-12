@@ -83,7 +83,7 @@ describe('WalletUtils', function() {
       while (i++ < 100) {
         var walletId = Uuid.v4();
         var walletPrivKey = new Bitcore.PrivateKey();
-        var network = 'testnet';
+        var network = i % 2 == 0 ? 'testnet' : 'livenet';
         var secret = WalletUtils.toSecret(walletId, walletPrivKey, network);
         var result = WalletUtils.fromSecret(secret);
         result.walletId.should.equal(walletId);
@@ -91,6 +91,78 @@ describe('WalletUtils', function() {
         result.network.should.equal(network);
       };
     });
+    it('should fail on invalid secret', function() {
+      (function() {
+        WalletUtils.fromSecret('invalidSecret');
+      }).should.throw('Invalid secret');
+    });
+
+    it('should create secret and parse secret from string ', function() {
+      var walletId = Uuid.v4();
+      var walletPrivKey = new Bitcore.PrivateKey();
+      var network = 'testnet';
+      var secret = WalletUtils.toSecret(walletId, walletPrivKey.toString(), network);
+      var result = WalletUtils.fromSecret(secret);
+      result.walletId.should.equal(walletId);
+      result.walletPrivKey.toString().should.equal(walletPrivKey.toString());
+      result.network.should.equal(network);
+    });
   });
+
+  describe('#getNetworkFromXPubKey', function() {
+    it('should check correctly', function() {
+      var result;
+
+      var xPrivKeyLivenet = (new Bitcore.HDPrivateKey('livenet')).toString();
+      var xPubKeyLivenet = new Bitcore.HDPublicKey(xPrivKeyLivenet).toString();
+      result = WalletUtils.getNetworkFromXPubKey(xPubKeyLivenet);
+      result.should.be.equal('livenet');
+
+      var xPrivKeyTestnet = (new Bitcore.HDPrivateKey('testnet')).toString();
+      var xPubKeyTestnet = new Bitcore.HDPublicKey(xPrivKeyTestnet).toString();
+      result = WalletUtils.getNetworkFromXPubKey(xPubKeyTestnet);
+      result.should.be.equal('testnet');
+
+    });
+    it('should fail if argument is null or undefined', function() {
+      (function() {
+        WalletUtils.getNetworkFromXPubKey(null);
+      }).should.throw('Illegal Argument');
+      (function() {
+        var n;
+        WalletUtils.getNetworkFromXPubKey(n);
+      }).should.throw('Illegal Argument');
+    });
+    it('should fail if argument is not a string', function() {
+      (function() {
+        var n = 123;
+        WalletUtils.getNetworkFromXPubKey(n);
+      }).should.throw('Illegal Argument');
+    });
+
+  });
+
+  describe('#privateKeyToAESKey', function() {
+    it('should check correctly', function() {
+      WalletUtils.privateKeyToAESKey('123456').should.be.equal('v3y+CdcaG8w3OrmnZJF/cw==');
+    });
+    it('should fail if pk is null or undefined', function() {
+      (function() {
+        WalletUtils.privateKeyToAESKey(null);
+      }).should.throw('Illegal Argument');
+      (function() {
+        var n;
+        WalletUtils.privateKeyToAESKey(n);
+      }).should.throw('Illegal Argument');
+    });
+    it('should fail if pk is not a string', function() {
+      (function() {
+        var n = 123;
+        WalletUtils.privateKeyToAESKey(n);
+      }).should.throw('Illegal Argument');
+    });
+  });
+
+
 
 });
