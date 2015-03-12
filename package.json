@@ -19,7 +19,7 @@
     "url": "https://github.com/bitpay/bitcore-wallet-utils/issues"
   },
   "dependencies": {
-    "bitcore": "^0.11.2",
+    "bitcore": "git+https://github.com/bitpay/bitcore#9ffe2def469d251ca769150bb0b9d133373b458a",
     "coveralls": "^2.11.2",
     "lodash": "^3.3.1",
     "preconditions": "^1.0.8",
