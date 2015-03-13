@@ -143,8 +143,9 @@ describe('WalletUtils', function() {
   });
 
   describe('#privateKeyToAESKey', function() {
-    it('should check correctly', function() {
-      WalletUtils.privateKeyToAESKey('123456').should.be.equal('v3y+CdcaG8w3OrmnZJF/cw==');
+    it('should be ok', function() {
+      var privKey = new Bitcore.PrivateKey(aPrivKey).toString();
+      WalletUtils.privateKeyToAESKey(privKey).should.be.equal('2HvmUYBSD0gXLea6z0n7EQ==');
     });
     it('should fail if pk is null or undefined', function() {
       (function() {
@@ -161,8 +162,25 @@ describe('WalletUtils', function() {
         WalletUtils.privateKeyToAESKey(n);
       }).should.throw('Illegal Argument');
     });
+    it('should fail if pk is not a valid private key', function() {
+      (function() {
+        var n = '123';
+        WalletUtils.privateKeyToAESKey(n);
+      }).should.throw('The private key received is invalid');
+    });
   });
 
+
+  describe.skip('#signTxp', function() {
+    it('should sign correctly', function() {
+
+      var xPrivKey = (new Bitcore.HDPrivateKey('testnet')).toString();
+      var txp = {};
+      txp.address = new Bitcore.Address({}, 'testnet', 'pubkeyhash');
+
+      var signatures = WalletUtils.signTxp(txp, xPrivKey);
+    });
+  });
 
 
 });
