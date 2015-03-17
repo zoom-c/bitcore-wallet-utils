@@ -15,6 +15,56 @@ var aSignature = '3045022100d6186930e4cd9984e3168e15535e2297988555838ad10126d6c2
 
 var otherPubKey = '02555a2d45e309c00cc8c5090b6ec533c6880ab2d3bc970b3943def989b3373f16';
 
+///////////////////////////////////////////////////////
+//////-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+//this functions are copied from bws/test/server.js
+
+var helpers = {};
+
+helpers.randomTXID = function() {
+  return Bitcore.crypto.Hash.sha256(new Buffer(Math.random() * 100000)).toString('hex');;
+};
+
+helpers.toSatoshi = function(btc) {
+  if (_.isArray(btc)) {
+    return _.map(btc, helpers.toSatoshi);
+  } else {
+    return helpers.strip(btc * 1e8);
+  }
+};
+
+helpers.strip = function(number) {
+  return (parseFloat(number.toPrecision(12)));
+}
+
+// // Amounts in satoshis 
+helpers.generateUtxos = function(publicKeyRing, path, requiredSignatures, amounts) {
+  var amounts = [].concat(amounts);
+
+  var utxos = _.map(amounts, function(amount, i) {
+
+    var address = WalletUtils.deriveAddress(publicKeyRing, path, requiredSignatures, 'testnet');
+
+    var obj = {
+      txid: helpers.randomTXID(),
+      vout: Math.floor((Math.random() * 10) + 1),
+      satoshis: helpers.toSatoshi(amount),
+      scriptPubKey: Bitcore.Script.buildMultisigOut(address.publicKeys, requiredSignatures).toScriptHashOut().toBuffer().toString('hex'),
+      address: address.address,
+      path: path,
+      publicKeys: address.publicKeys
+    };
+
+    return obj;
+  });
+
+  return utxos;
+
+};
+///////-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+///////////////////////////////////////////////////////
+
+
 describe('WalletUtils', function() {
 
   describe('#hashMessage', function() {
@@ -171,16 +221,36 @@ describe('WalletUtils', function() {
   });
 
 
-  describe.skip('#signTxp', function() {
-    it('should sign correctly', function() {
+  describe('#signTxp', function(done) {
+    it('should sign correctly', function(done) {
+      var hdPrivateKey = new Bitcore.HDPrivateKey();
 
-      var xPrivKey = (new Bitcore.HDPrivateKey('testnet')).toString();
-      var txp = {};
-      txp.address = new Bitcore.Address({}, 'testnet', 'pubkeyhash');
+      var toAddress = 'msj42CCGruhRsFrGATiUuh25dtxYtnpbTx';
+      var changeAddress = 'msj42CCGruhRsFrGATiUuh25dtxYtnpbTx';
 
-      var signatures = WalletUtils.signTxp(txp, xPrivKey);
+      var publicKeyRing = [{
+        xPubKey: new Bitcore.HDPublicKey(hdPrivateKey)
+      }];
+
+      var path = 'm/1/0';
+
+      var utxos = helpers.generateUtxos(publicKeyRing, path, 1, [100, 200]);
+
+      var txp = {
+        inputs: utxos,
+        toAddress: toAddress,
+        amount: 10,
+        changeAddress: {
+          address: changeAddress
+        },
+        requiredSignatures: 1
+      };
+
+      var signatures = WalletUtils.signTxp(txp, hdPrivateKey);
+      done();
+
     });
+
+
   });
-
-
 });
