@@ -160,19 +160,19 @@ describe('WalletUtils', function() {
 
     });
     it('should fail if argument is null or undefined', function() {
-      (function() {
-        WalletUtils.getNetworkFromXPubKey(null);
-      }).should.throw('Illegal Argument');
-      (function() {
-        var n;
-        WalletUtils.getNetworkFromXPubKey(n);
-      }).should.throw('Illegal Argument');
-    });
-    it('should fail if argument is not a string', function() {
-      (function() {
-        var n = 123;
-        WalletUtils.getNetworkFromXPubKey(n);
-      }).should.throw('Illegal Argument');
+      var values = [
+        null,
+        123,
+      ];
+      _.each(values, function(value) {
+        var valid = true;
+        try {
+          WalletUtils.getNetworkFromXPubKey(value);
+        } catch (e) {
+          valid = false;
+        }
+        valid.should.be.false;
+      });
     });
 
   });
@@ -182,26 +182,21 @@ describe('WalletUtils', function() {
       var privKey = new Bitcore.PrivateKey(aPrivKey).toString();
       WalletUtils.privateKeyToAESKey(privKey).should.be.equal('2HvmUYBSD0gXLea6z0n7EQ==');
     });
-    it('should fail if pk is null or undefined', function() {
-      (function() {
-        WalletUtils.privateKeyToAESKey(null);
-      }).should.throw('Illegal Argument');
-      (function() {
-        var n;
-        WalletUtils.privateKeyToAESKey(n);
-      }).should.throw('Illegal Argument');
-    });
-    it('should fail if pk is not a string', function() {
-      (function() {
-        var n = 123;
-        WalletUtils.privateKeyToAESKey(n);
-      }).should.throw('Illegal Argument');
-    });
-    it('should fail if pk is not a valid private key', function() {
-      (function() {
-        var n = '123';
-        WalletUtils.privateKeyToAESKey(n);
-      }).should.throw('The private key received is invalid');
+    it('should fail if pk has invalid values', function() {
+      var values = [
+        null,
+        123,
+        '123',
+      ];
+      _.each(values, function(value) {
+        var valid = true;
+        try {
+          WalletUtils.privateKeyToAESKey(value);
+        } catch (e) {
+          valid = false;
+        }
+        valid.should.be.false;
+      });
     });
   });
 
