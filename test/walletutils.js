@@ -222,7 +222,8 @@ describe('WalletUtils', function() {
         changeAddress: {
           address: changeAddress
         },
-        requiredSignatures: 1
+        requiredSignatures: 1,
+        outputOrder: [0, 1]
       };
       var signatures = WalletUtils.signTxp(txp, hdPrivateKey);
       signatures.length.should.be.equal(utxos.length);
