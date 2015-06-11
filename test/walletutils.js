@@ -200,6 +200,73 @@ describe('WalletUtils', function() {
     });
   });
 
+  describe('#buildTx', function() {
+    it('should build a tx correctly', function() {
+      var hdPrivateKey = new Bitcore.HDPrivateKey('tprv8ZgxMBicQKsPdPLE72pfSo7CvzTsWddGHdwSuMNrcerr8yQZKdaPXiRtP9Ew8ueSe9M7jS6RJsp4DiAVS2xmyxcCC9kZV6X1FMsX7EQX2R5');
+      var derivedPrivateKey = hdPrivateKey.derive(WalletUtils.PATHS.BASE_ADDRESS_DERIVATION);
+
+      var toAddress = 'msj42CCGruhRsFrGATiUuh25dtxYtnpbTx';
+      var changeAddress = 'msj42CCGruhRsFrGATiUuh25dtxYtnpbTx';
+
+      var publicKeyRing = [{
+        xPubKey: new Bitcore.HDPublicKey(derivedPrivateKey)
+      }];
+
+      var utxos = helpers.generateUtxos(publicKeyRing, 'm/1/0', 1, [1000, 2000]);
+      var txp = {
+        inputs: utxos,
+        toAddress: toAddress,
+        amount: 1200,
+        changeAddress: {
+          address: changeAddress
+        },
+        requiredSignatures: 1,
+        outputOrder: [0, 1]
+      };
+      var t = WalletUtils.buildTx(txp);
+      var bitcoreError = t.getSerializationError({
+        disableIsFullySigned: true,
+      });
+      should.not.exist(bitcoreError);
+      t.getFee().should.equal(10000);
+    });
+    it('should build a tx with custom fee per kb', function() {
+      var hdPrivateKey = new Bitcore.HDPrivateKey('tprv8ZgxMBicQKsPdPLE72pfSo7CvzTsWddGHdwSuMNrcerr8yQZKdaPXiRtP9Ew8ueSe9M7jS6RJsp4DiAVS2xmyxcCC9kZV6X1FMsX7EQX2R5');
+      var derivedPrivateKey = hdPrivateKey.derive(WalletUtils.PATHS.BASE_ADDRESS_DERIVATION);
+
+      var toAddress = 'msj42CCGruhRsFrGATiUuh25dtxYtnpbTx';
+      var changeAddress = 'msj42CCGruhRsFrGATiUuh25dtxYtnpbTx';
+
+      var publicKeyRing = [{
+        xPubKey: new Bitcore.HDPublicKey(derivedPrivateKey)
+      }];
+
+      var utxos = helpers.generateUtxos(publicKeyRing, 'm/1/0', 1, [1000, 2000]);
+      var txp = {
+        inputs: utxos,
+        toAddress: toAddress,
+        amount: 1200,
+        changeAddress: {
+          address: changeAddress
+        },
+        feePerKb: 15000,
+        requiredSignatures: 1,
+        outputOrder: [0, 1]
+      };
+      (function() {
+        WalletUtils.buildTx(txp);
+      }).should.throw('Illegal Argument');
+
+      txp.feePerKb = 5000;
+
+      var t = WalletUtils.buildTx(txp);
+      var bitcoreError = t.getSerializationError({
+        disableIsFullySigned: true,
+      });
+      should.not.exist(bitcoreError);
+      t.getFee().should.equal(5000);
+    });
+  });
 
   describe('#signTxp', function() {
     it('should sign correctly', function() {
