@@ -144,6 +144,41 @@ describe('WalletUtils', function() {
     });
   });
 
+  describe('#getProposalHash', function() {
+    it('should compute hash for old style proposals', function() {
+      var hash = WalletUtils.getProposalHash('msj42CCGruhRsFrGATiUuh25dtxYtnpbTx', 1234, 'the message');
+      hash.should.equal('msj42CCGruhRsFrGATiUuh25dtxYtnpbTx|1234|the message|');
+    });
+    it('should compute hash for arbitrary proposal', function() {
+      var header1 = {
+        type: 'simple',
+        version: '1.0',
+        toAddress: 'msj42CCGruhRsFrGATiUuh25dtxYtnpbTx',
+        amount: 1234,
+        message: {
+          one: 'one',
+          two: 'two'
+        },
+      };
+
+      var header2 = {
+        toAddress: 'msj42CCGruhRsFrGATiUuh25dtxYtnpbTx',
+        type: 'simple',
+        version: '1.0',
+        message: {
+          two: 'two',
+          one: 'one'
+        },
+        amount: 1234,
+      };
+
+      var hash1 = WalletUtils.getProposalHash(header1);
+      var hash2 = WalletUtils.getProposalHash(header2);
+
+      hash1.should.equal(hash2);
+    });
+  });
+
   describe('#getNetworkFromXPubKey', function() {
     it('should check correctly', function() {
       var result;
