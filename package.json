@@ -2,7 +2,7 @@
   "name": "bitcore-wallet-utils",
   "description": "Common library for Bitcore Wallet Service and Client",
   "author": "BitPay Inc",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "main": "index.js",
   "keywords": [
     "bitcoin",
@@ -21,6 +21,7 @@
   "dependencies": {
     "bitcore": "git://github.com/bitpay/bitcore.git#a4ac3f50d300b3f89fad02f9e38fc536ac90abdc",
     "coveralls": "^2.11.2",
+    "json-stable-stringify": "^1.0.0",
     "lodash": "^3.3.1",
     "preconditions": "^1.0.8",
     "sjcl": "^1.0.2",
