@@ -350,6 +350,37 @@ describe('WalletUtils', function() {
 
       WalletUtils.newBitcoreTransaction = x;
     });
+    it('should build a tx with multiple outputs', function() {
+      var hdPrivateKey = new Bitcore.HDPrivateKey('tprv8ZgxMBicQKsPdPLE72pfSo7CvzTsWddGHdwSuMNrcerr8yQZKdaPXiRtP9Ew8ueSe9M7jS6RJsp4DiAVS2xmyxcCC9kZV6X1FMsX7EQX2R5');
+      var derivedPrivateKey = hdPrivateKey.derive(WalletUtils.PATHS.BASE_ADDRESS_DERIVATION);
+
+      var toAddress = 'msj42CCGruhRsFrGATiUuh25dtxYtnpbTx';
+      var changeAddress = 'msj42CCGruhRsFrGATiUuh25dtxYtnpbTx';
+
+      var publicKeyRing = [{
+        xPubKey: new Bitcore.HDPublicKey(derivedPrivateKey)
+      }];
+
+      var utxos = helpers.generateUtxos(publicKeyRing, 'm/1/0', 1, [1000, 2000]);
+      var txp = {
+        inputs: utxos,
+        type: 'multiple_outputs',
+        outputs: [
+          { toAddress: toAddress, amount: 800, message: 'first output' },
+          { toAddress: toAddress, amount: 900, message: 'second output' }
+        ],
+        changeAddress: {
+          address: changeAddress
+        },
+        requiredSignatures: 1,
+        outputOrder: [0, 1, 2]
+      };
+      var t = WalletUtils.buildTx(txp);
+      var bitcoreError = t.getSerializationError({
+        disableIsFullySigned: true,
+      });
+      should.not.exist(bitcoreError);
+    });
   });
 
   describe('#signTxp', function() {
@@ -375,6 +406,35 @@ describe('WalletUtils', function() {
         },
         requiredSignatures: 1,
         outputOrder: [0, 1]
+      };
+      var signatures = WalletUtils.signTxp(txp, hdPrivateKey);
+      signatures.length.should.be.equal(utxos.length);
+    });
+    it('should sign multiple-outputs proposal correctly', function() {
+      var hdPrivateKey = new Bitcore.HDPrivateKey('tprv8ZgxMBicQKsPdPLE72pfSo7CvzTsWddGHdwSuMNrcerr8yQZKdaPXiRtP9Ew8ueSe9M7jS6RJsp4DiAVS2xmyxcCC9kZV6X1FMsX7EQX2R5');
+      var derivedPrivateKey = hdPrivateKey.derive(WalletUtils.PATHS.BASE_ADDRESS_DERIVATION);
+
+      var toAddress = 'msj42CCGruhRsFrGATiUuh25dtxYtnpbTx';
+      var changeAddress = 'msj42CCGruhRsFrGATiUuh25dtxYtnpbTx';
+
+      var publicKeyRing = [{
+        xPubKey: new Bitcore.HDPublicKey(derivedPrivateKey)
+      }];
+
+      var path = 'm/1/0';
+      var utxos = helpers.generateUtxos(publicKeyRing, path, 1, [1000, 2000]);
+      var txp = {
+        inputs: utxos,
+        type: 'multiple_outputs',
+        outputs: [
+          { toAddress: toAddress, amount: 800, message: 'first output' },
+          { toAddress: toAddress, amount: 900, message: 'second output' }
+        ],
+        changeAddress: {
+          address: changeAddress
+        },
+        requiredSignatures: 1,
+        outputOrder: [0, 1, 2]
       };
       var signatures = WalletUtils.signTxp(txp, hdPrivateKey);
       signatures.length.should.be.equal(utxos.length);
