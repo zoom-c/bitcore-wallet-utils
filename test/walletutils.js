@@ -365,10 +365,15 @@ describe('WalletUtils', function() {
       var txp = {
         inputs: utxos,
         type: 'multiple_outputs',
-        outputs: [
-          { toAddress: toAddress, amount: 800, message: 'first output' },
-          { toAddress: toAddress, amount: 900, message: 'second output' }
-        ],
+        outputs: [{
+          toAddress: toAddress,
+          amount: 800,
+          message: 'first output'
+        }, {
+          toAddress: toAddress,
+          amount: 900,
+          message: 'second output'
+        }],
         changeAddress: {
           address: changeAddress
         },
@@ -426,10 +431,15 @@ describe('WalletUtils', function() {
       var txp = {
         inputs: utxos,
         type: 'multiple_outputs',
-        outputs: [
-          { toAddress: toAddress, amount: 800, message: 'first output' },
-          { toAddress: toAddress, amount: 900, message: 'second output' }
-        ],
+        outputs: [{
+          toAddress: toAddress,
+          amount: 800,
+          message: 'first output'
+        }, {
+          toAddress: toAddress,
+          amount: 900,
+          message: 'second output'
+        }],
         changeAddress: {
           address: changeAddress
         },
@@ -448,7 +458,7 @@ describe('WalletUtils', function() {
         expected: '0',
       }, {
         args: [1, 'btc'],
-        expected: '0.000000',
+        expected: '0.00',
       }, {
         args: [0, 'bit'],
         expected: '0',
@@ -462,8 +472,14 @@ describe('WalletUtils', function() {
         args: [12345611, 'btc'],
         expected: '0.123456',
       }, {
+        args: [1234, 'btc'],
+        expected: '0.000012',
+      }, {
+        args: [1299, 'btc'],
+        expected: '0.000013',
+      }, {
         args: [1234567899999, 'btc'],
-        expected: '12,345.679000',
+        expected: '12,345.679',
       }, {
         args: [12345678, 'bit', {
           thousandsSeparator: '.'
@@ -479,7 +495,7 @@ describe('WalletUtils', function() {
           thousandsSeparator: ' ',
           decimalSeparator: ','
         }],
-        expected: '12 345,679000',
+        expected: '12 345,679',
       }, ];
 
       _.each(cases, function(testCase) {
