@@ -293,18 +293,18 @@ describe('WalletUtils', function() {
         WalletUtils.buildTx(txp);
       }).should.throw('Illegal Argument');
 
-      txp.feePerKb = 15000;
+      txp.feePerKb = 800000;
       (function() {
         WalletUtils.buildTx(txp);
       }).should.throw('Illegal Argument');
 
-      txp.feePerKb = 5000;
+      txp.feePerKb = 15000;
       var t = WalletUtils.buildTx(txp);
       var bitcoreError = t.getSerializationError({
         disableIsFullySigned: true,
       });
       should.not.exist(bitcoreError);
-      t.getFee().should.equal(5000);
+      t.getFee().should.equal(15000);
     });
 
     it('should protect from creating excessive fee', function() {
