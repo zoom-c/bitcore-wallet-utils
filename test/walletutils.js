@@ -288,12 +288,7 @@ describe('WalletUtils', function() {
         outputOrder: [0, 1]
       };
 
-      txp.feePerKb = 100;
-      (function() {
-        WalletUtils.buildTx(txp);
-      }).should.throw('Illegal Argument');
-
-      txp.feePerKb = 800000;
+      txp.feePerKb = 8000000;
       (function() {
         WalletUtils.buildTx(txp);
       }).should.throw('Illegal Argument');
