@@ -19,7 +19,7 @@
     "url": "https://github.com/bitpay/bitcore-wallet-utils/issues"
   },
   "dependencies": {
-    "bitcore": "zoom-c/bitcore",
+    "bitcore": "zoom-c/bitcore#Zoom",
     "coveralls": "^2.11.2",
     "json-stable-stringify": "^1.0.0",
     "lodash": "^3.3.1",
