@@ -29,7 +29,7 @@ helpers.strip = function(number) {
   return (parseFloat(number.toPrecision(12)));
 }
 
-// // Amounts in satoshis 
+// Amounts in satoshis 
 helpers.generateUtxos = function(publicKeyRing, path, requiredSignatures, amounts) {
   var amounts = [].concat(amounts);
   var utxos = _.map(amounts, function(amount, i) {
