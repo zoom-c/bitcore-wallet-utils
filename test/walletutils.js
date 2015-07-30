@@ -249,6 +249,7 @@ describe('WalletUtils', function() {
 
       var utxos = helpers.generateUtxos(publicKeyRing, 'm/1/0', 1, [1000, 2000]);
       var txp = {
+        version: '2.0.0',
         inputs: utxos,
         toAddress: toAddress,
         amount: 1200,
@@ -268,6 +269,41 @@ describe('WalletUtils', function() {
 
       should.not.exist(bitcoreError);
       t.getFee().should.equal(10050);
+    });
+    it('should build a legacy (v1.*) tx correctly', function() {
+      var hdPrivateKey = new Bitcore.HDPrivateKey('tprv8ZgxMBicQKsPdPLE72pfSo7CvzTsWddGHdwSuMNrcerr8yQZKdaPXiRtP9Ew8ueSe9M7jS6RJsp4DiAVS2xmyxcCC9kZV6X1FMsX7EQX2R5');
+      var derivedPrivateKey = hdPrivateKey.derive(WalletUtils.PATHS.BASE_ADDRESS_DERIVATION);
+
+      var toAddress = 'msj42CCGruhRsFrGATiUuh25dtxYtnpbTx';
+      var changeAddress = 'msj42CCGruhRsFrGATiUuh25dtxYtnpbTx';
+
+      var publicKeyRing = [{
+        xPubKey: new Bitcore.HDPublicKey(derivedPrivateKey)
+      }];
+
+      var utxos = helpers.generateUtxos(publicKeyRing, 'm/1/0', 1, [1000, 2000]);
+      var txp = {
+        version: '1.0.1',
+        inputs: utxos,
+        toAddress: toAddress,
+        amount: 1200,
+        changeAddress: {
+          address: changeAddress
+        },
+        requiredSignatures: 1,
+        outputOrder: [0, 1],
+        feePerKb: 40000,
+        fee: 10050,
+      };
+      var t = WalletUtils.buildTx(txp);
+      var bitcoreError = t.getSerializationError({
+        disableIsFullySigned: true,
+        disableSmallFees: true,
+        disableLargeFees: true,
+      });
+
+      should.not.exist(bitcoreError);
+      t.getFee().should.equal(40000);
     });
     it('should protect from creating excessive fee', function() {
       var hdPrivateKey = new Bitcore.HDPrivateKey('tprv8ZgxMBicQKsPdPLE72pfSo7CvzTsWddGHdwSuMNrcerr8yQZKdaPXiRtP9Ew8ueSe9M7jS6RJsp4DiAVS2xmyxcCC9kZV6X1FMsX7EQX2R5');
